@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"]="postgresql+psycopg2://ecommerce_dev:123456@localhost:5432/jul_ecommerce"
 
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 # Model - Table
 class Product(db.Model):
@@ -18,6 +20,17 @@ class Product(db.Model):
     description = db.Column(db.String(100))
     price = db.Column(db.Float)
     stock = db.Column(db.Integer)
+
+# Schema
+class ProductSchema(ma.Schema):
+    class Meta:
+        # fields
+        fields = ("id", "name", "description", "price", "stock")
+
+# to handle multiple products
+products_schema = ProductSchema(many=True)
+# to handle a single product
+product_schema = ProductSchema()
 
 # CLI Commands
 @app.cli.command("create")
@@ -49,3 +62,29 @@ def seed_db():
     # commit
     db.session.commit()
     print("Tables seeded")
+
+# get all products - /products - GET
+# get a single product - /products/id - GET
+# create a product - /products - POST
+# update a product - /products/id - PUT, PATCH
+# delete a product - /products/id - DELETE
+
+
+# CRUD for products
+# R of CRUD - Read - GET
+@app.route("/products")
+def get_products():
+    stmt = db.select(Product) # SELECT * FROM products;
+    products_list = db.session.scalars(stmt)
+    data = products_schema.dump(products_list)
+    return data
+
+@app.route("/products/<int:product_id>")
+def get_product(product_id):
+    stmt = db.select(Product).filter_by(id=product_id) # SELECT * FROM products WHERE id=product_id;
+    product = db.session.scalar(stmt)
+    if product:
+        data = product_schema.dump(product)
+        return data
+    else:
+        return {"message": f"Product with id {product_id} does not exist"}, 404
