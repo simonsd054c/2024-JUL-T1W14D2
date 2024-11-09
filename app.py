@@ -102,3 +102,21 @@ def create_product():
     db.session.add(new_product)
     db.session.commit()
     return product_schema.dump(new_product), 201
+
+# D of CRUD - Delete - DELETE
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    # find the product with that id from the db
+    stmt = db.select(Product).where(Product.id==product_id) # SELECT * FROM products WHERE id=product_id;
+    product = db.session.scalar(stmt)
+    # if product exists
+    if product:
+        # delete the product
+        db.session.delete(product)
+        db.session.commit()
+        # respond with a message saying the product has been deleted
+        return {"message": f"Product '{product.name}' deleted successfully"}
+    # else
+    else:
+        # respond with a message saying product with that id does not exist
+        return {"message": f"Product with id {product_id} does not exist"}, 404
