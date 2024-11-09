@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
@@ -88,3 +88,17 @@ def get_product(product_id):
         return data
     else:
         return {"message": f"Product with id {product_id} does not exist"}, 404
+
+# C of CRUD - Create - POST
+@app.route("/products", methods=["POST"])
+def create_product():
+    body_data = request.get_json()
+    new_product = Product(
+        name=body_data.get("name"),
+        description=body_data.get("description"),
+        price=body_data.get("price"),
+        stock=body_data.get("stock")
+    )
+    db.session.add(new_product)
+    db.session.commit()
+    return product_schema.dump(new_product), 201
