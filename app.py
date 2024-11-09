@@ -120,3 +120,27 @@ def delete_product(product_id):
     else:
         # respond with a message saying product with that id does not exist
         return {"message": f"Product with id {product_id} does not exist"}, 404
+
+# U of CRUD - Update - PUT, PATCH
+@app.route("/products/<int:product_id>", methods=["PUT", "PATCH"])
+def update_product(product_id):
+    # find the product with that id from the db to update
+    stmt = db.select(Product).filter_by(id=product_id)
+    product = db.session.scalar(stmt)
+    # get the data to be updated from the body of the request
+    body_data = request.get_json()
+    # if product exists
+    if product:
+        # update the product
+        product.name = body_data.get("name") or product.name
+        product.description = body_data.get("description") or product.description
+        product.price = body_data.get("price") or product.price
+        product.stock = body_data.get("stock") or product.stock
+        # commit
+        db.session.commit()
+        # respond accordingly
+        return product_schema.dump(product)
+    # else
+    else:
+        # respond with an error message
+        return {"message": f"Product with id {product_id} does not exist"}, 404
