@@ -176,3 +176,20 @@ def update_product(product_id):
     else:
         # respond with an error message
         return {"message": f"Product with id {product_id} does not exist"}, 404
+
+
+# CRUD for categories
+# Read all categories - /categories - GET
+# Read a single category - /categories/id - GET
+# Create category - /categories - POST
+# Update category - /categories/id - PUT or PATCH
+# Delete category - /categories/id - DELETE
+
+# Read all categories
+@app.route("/categories", methods=["GET"])
+def get_categories():
+    stmt = db.select(Category) # SELECT * FROM categories;
+    categories_list = db.session.scalars(stmt)
+    # convert this list of python objects into a serialisable format
+    data = categories_schema.dump(categories_list)
+    return data
