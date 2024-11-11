@@ -74,6 +74,23 @@ def seed_db():
     # add to session
     db.session.add(product1)
     db.session.add(product2)
+
+    # create list of categories object
+    categories = [
+        Category(
+            name="Category 1",
+            description="Category 1 desc"
+        ),
+        Category(
+            name="Category 2",
+            description="Category 2 desc"
+        ),
+        Category(
+            name="Category 3"
+        )
+    ]
+    # add the list to the session
+    db.session.add_all(categories)
     # commit
     db.session.commit()
     print("Tables seeded")
