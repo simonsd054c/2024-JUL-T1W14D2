@@ -203,3 +203,19 @@ def get_category(category_id):
         return data
     else:
         return {"message": f"Category with id {category_id} does not exist"}, 404
+
+@app.route("/categories", methods=["POST"])
+def create_category():
+    # get the data from the body of the request
+    body_data = request.get_json()
+    # create a category model object using the data from the request body
+    new_category = Category(
+        name=body_data.get("name"),
+        description=body_data.get("description")
+    )
+    # add it to the session
+    db.session.add(new_category)
+    # commit
+    db.session.commit()
+    # return a response
+    return category_schema.dump(new_category), 201
