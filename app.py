@@ -21,16 +21,31 @@ class Product(db.Model):
     price = db.Column(db.Float)
     stock = db.Column(db.Integer)
 
+class Category(db.Model):
+    __tablename__ = "categories"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.String(100))
+
 # Schema
 class ProductSchema(ma.Schema):
     class Meta:
         # fields
         fields = ("id", "name", "description", "price", "stock")
 
+class CategorySchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "description")
+
 # to handle multiple products
 products_schema = ProductSchema(many=True)
 # to handle a single product
 product_schema = ProductSchema()
+
+# to handle multiple categories
+categories_schema = CategorySchema(many=True)
+# to handle a single category
+category_schema = CategorySchema()
 
 # CLI Commands
 @app.cli.command("create")
