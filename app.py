@@ -219,3 +219,21 @@ def create_category():
     db.session.commit()
     # return a response
     return category_schema.dump(new_category), 201
+
+@app.route("/categories/<int:category_id>", methods=["DELETE"])
+def delete_category(category_id):
+    # find the category with that id
+    stmt = db.select(Category).filter_by(id=category_id)
+    category = db.session.scalar(stmt)
+    # if the category exists
+    if category:
+        # delete the category
+        db.session.delete(category)
+        # commit
+        db.session.commit()
+        # return some response
+        return {"message": f"Category {category.name} deleted successfully"}
+    # else
+    else:
+        # return an error response
+        return {"message": f"Category with id {category_id} does not exist"}, 404
